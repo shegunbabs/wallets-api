@@ -1,0 +1,21 @@
+{
+    frankenphp {
+        php_ini {
+            memory_limit 512M
+            max_execution_time 30
+            post_max_size 45M
+            upload_max_filesize 40M
+            max_file_uploads 5
+        }
+    }
+}
+
+:80 {
+    root public/
+
+    encode zstd br gzip
+
+    php_server {
+        try_files {path} index.php
+    }
+}
