@@ -57,7 +57,10 @@
             "@php artisan config:clear --ansi",
             "@php artisan test"
         ],
-        "rector": "rector"
+        "rector": "rector",
+        "pint": "pint",
+        "lint": "pint",
+        "test:pint": "pint --test"
     },
     "extra": {
         "laravel": {
