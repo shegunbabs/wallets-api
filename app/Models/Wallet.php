@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,7 +19,7 @@ class Wallet extends Model
     {
         parent::boot();
 
-        static::creating(static function ($wallet){
+        static::creating(static function ($wallet): void{
             $wallet->wallet_id = (string) Str::uuid();
         });
     }
