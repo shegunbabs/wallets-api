@@ -59,12 +59,19 @@
             "@php artisan config:clear --ansi",
             "@php artisan test"
         ],
-        "rector": "rector",
+        "test:rector": "rector --dry-run",
         "pint": "pint",
-        "lint": "pint",
+        "lint": "pint --test",
         "test:pint": "pint --test",
         "test:types": "phpstan analyse",
-        "test:coverage": "pest --type-coverage --min=100"
+        "test:coverage": "pest --type-coverage --min=100",
+        "test:pest": "pest --colors=always --parallel --coverage",
+        "test": [
+            "@test:coverage",
+            "@test:rector",
+            "@test:lint",
+            "@test:types"
+        ]
     },
     "extra": {
         "laravel": {
