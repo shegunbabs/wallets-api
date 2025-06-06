@@ -13,10 +13,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('wallets', function (Blueprint $table): void {
+        Schema::create('wallets', static function (Blueprint $table): void {
             $table->id();
-            $table->uuid('wallet_id')->unique(); // user id maybe
-            $table->string('owner_id'); // User, Company, System, etc
+            $table->uuid('wallet_id')->unique();
+            $table->string('owner_id'); // user id maybe
+            $table->string('owner_type'); // User, Company, System, etc
             $table->string('currency', 3);
             $table->decimal('balance', 19, 2)->default(0);
             $table->decimal('available_balance', 19, 2)->default(0);

@@ -30,7 +30,12 @@ class Wallet extends Model
 {
     protected $fillable = [];
 
-    protected $casts = [];
+    protected $casts = [
+        'available_balance' => 'float',
+        'balance' => 'float',
+        'held_balance' => 'float',
+        'metadata' => 'array'
+    ];
 
     protected static function boot(): void
     {
