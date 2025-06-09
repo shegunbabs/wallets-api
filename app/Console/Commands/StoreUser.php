@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Actions\CreateUser;
 use App\DTOs\UserData;
 use App\Models\User;
 use Illuminate\Console\Command;
@@ -27,7 +28,7 @@ class StoreUser extends Command
     /**
      * Execute the console command.
      */
-    public function handle(): int
+    public function handle(CreateUser $createUser): int
     {
         $data['name'] = $this->argument('name');
         $data['email'] = $this->argument('email');
@@ -46,13 +47,9 @@ class StoreUser extends Command
 
         $userDTO = UserData::from($data);
 
-        $user = User::query()->create([
-            'name' => $userDTO->name,
-            'email' => $userDTO->email,
-            'password' => Hash::make($userDTO->password),
-        ]);
+        ['user' => $user, 'secret_key' => $secret_key] = $createUser->handle($userDTO);
 
-        $this->info("User {$userDTO->name} created successfully");
+        $this->info("User {$user->name} created successfully. Secret: {$secret_key}");
         return Command::SUCCESS;
     }
 

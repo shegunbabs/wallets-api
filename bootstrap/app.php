@@ -7,6 +7,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use function App\Helpers\isSerialized;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -19,13 +20,23 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (RuntimeException $e, Request $request){
+        $exceptions->render(function (RuntimeException $e, Request $request)
+        {
+
+            $httpStatus = $e->getCode();
+            $unserializedData = isSerialized($e->getMessage())
+                ? unserialize($e->getMessage(), ['allowed_classes' => false])
+                : $e->getMessage();
+
+            $body['status'] = $httpStatus;
+            $body['message'] = $unserializedData['message'] ?? $e->getMessage();
+
+            if (! empty($unserializedData['errors']) ) {
+                $body['errors'] = $unserializedData['errors'];
+            }
 
             return response()->json(
-                data: [
-                    'message' => 'error occured',
-                    'error' => [],
-                ],
+                data:$body,
                 status: Response::HTTP_BAD_REQUEST
             );
         });
