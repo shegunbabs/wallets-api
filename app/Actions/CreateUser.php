@@ -36,7 +36,7 @@ class CreateUser
                     'api_key' => $api_key,
                     'secret_hash' => Hash::make($secret_key),
                 ]);
-                $user->apiCredentials()->save($apiCredentials);
+                $user->apiCredential()->save($apiCredentials);
 
                 return [
                     'user' => $user,

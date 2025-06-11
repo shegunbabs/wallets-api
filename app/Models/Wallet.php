@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
@@ -28,13 +29,22 @@ use Illuminate\Support\Str;
  */
 class Wallet extends Model
 {
-    protected $fillable = [];
+    protected $fillable = [
+        'owner_id', 'owner_type', 'currency', 'status', 'metadata'
+    ];
 
     protected $casts = [
         'available_balance' => 'float',
         'balance' => 'float',
         'held_balance' => 'float',
-        'metadata' => 'array'
+        'metadata' => AsArrayObject::class
+    ];
+
+    protected $attributes = [
+        'available_balance' => 0.00,
+        'balance' => 0.00,
+        'held_balance' => 0.00,
+        'metadata' => null,
     ];
 
     protected static function boot(): void

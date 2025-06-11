@@ -3,54 +3,73 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Models\ApiCredential;
+use App\Models\User;
+use App\Services\ErrorType;
+use App\Traits\InteractsWithException;
+use App\Traits\InteractsWithHeader;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use function App\Helpers\packageExceptionData;
 
 class AuthController
 {
+    use InteractsWithHeader;
+    use InteractsWithException;
+
     public function store(Request $request)
     {
-        $basicAuth = $request->header('Authorization');
-        [,$encodedString] = explode(" ", $basicAuth);
+        $basicToken = $this->basicToken();
 
-        $exceptionData = packageExceptionData(
-            message: 'Authentication failed.',
-            errors: [['field' => 'key_error', 'message' => 'Key decode error']]
-        );
-
-        if ( empty($encodedString) ) {
-            throw new \RuntimeException($exceptionData, 400);
+        if (! isset($basicToken)) {
+            throw new \RuntimeException(
+                $this->exceptionData(ErrorType::KEY_DECODE_ERROR),
+                400
+            );
         }
 
-        [$apiKey, $secretKey] = explode(":", base64_decode($encodedString));
-        $apiCredential = ApiCredential::query()->where('api_key', $apiKey)->first();
+        ['api_key' => $apiKey, 'secret_key' => $secretKey] = $this->decodeBasicToken($basicToken);
 
-        $checkError = match (true) {
+        if (! isset($apiKey, $secretKey)) {
+            throw new \RuntimeException(
+                $this->exceptionData(ErrorType::KEY_DECODE_ERROR),
+                400
+            );
+        }
+
+        $apiCredential = ApiCredential::query()->where('api_key', $apiKey)->first();
+        $user = User::query()->whereRelation('apiCredential', 'api_key', $apiKey)->first();
+
+        $authCheck = match (true) {
             is_null($apiCredential) => true,
             !Hash::check($secretKey, $apiCredential->secret_hash) => true,
             default => false,
         };
 
-        if ($checkError) {
-            throw new \RuntimeException($exceptionData, 400);
+        if ($authCheck) {
+            throw new \RuntimeException(
+                $this->exceptionData(ErrorType::KEY_DECODE_ERROR),
+                400
+            );
         }
 
-
-
-        dd(
-            $basicAuth,
-            base64_decode($encodedString),
-            $apiKey,
-            $secretKey,
-            $apiCredential,
-            //Hash::check($secretKey, $apiCredential->secret_hash),
+        $token = $user->createToken(
+            $request->get('token_name', Str::slug($user->name))
         );
-        // validate form
 
-
-        // verify user
 
         // create token for user
+        return response()->json(
+            [
+                'status' => [
+                    "code" => 200,
+                    "success" => true,
+                    "message" => "Token generated successfully",
+                ],
+                "data" => [
+                    "access_token" => $token->plainTextToken,
+                ]
+            ],
+        );
     }
 }

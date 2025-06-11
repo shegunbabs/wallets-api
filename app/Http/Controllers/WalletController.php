@@ -27,7 +27,7 @@ class WalletController extends Controller
             ownerType: $request->owner_type,
             currency: $request->currency,
             walletType: $request->wallet_type,
-            metadata: $request->metadata,
+            metadata: $request->get('metadata', []),
         );
 
         return new WalletResource($wallet);

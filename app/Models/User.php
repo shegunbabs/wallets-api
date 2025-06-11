@@ -9,8 +9,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
 
+/**
+ * @property-read int $id
+ * @property-read string $name
+ * @property-read string $email
+ * @property-read Carbon $email_verified_at
+ * @property-read string $password
+ * @property-read string $remember_token
+ * @property-read string $
+ */
 class User extends Authenticatable
 {
     use Notifiable;
@@ -50,7 +60,7 @@ class User extends Authenticatable
         ];
     }
 
-    public function apiCredentials(): HasOne
+    public function apiCredential(): HasOne
     {
         return $this->hasOne(ApiCredential::class);
     }

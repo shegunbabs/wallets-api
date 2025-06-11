@@ -24,7 +24,7 @@ class WalletService
                     'owner_type' => $ownerType,
                     'currency' => $currency,
                     'wallet_type' => $walletType,
-                    'metadata' => $metadata ?? [],
+                    'metadata' => $metadata,
                     'status' => WalletStatusEnum::ACTIVE->value,
                 ]);
 

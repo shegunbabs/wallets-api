@@ -53,9 +53,7 @@ function packageExceptionData(string $message, $errors = [], bool $serialized = 
         }
 
         //$return['errors'][][$key] = $value;
-        $return['errors'][] = [
-            $errors
-        ];
+        $return['errors'] = $errors;
         break;
     }
     returnee:

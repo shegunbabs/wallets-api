@@ -6,6 +6,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use function App\Helpers\isSerialized;
 
@@ -22,22 +23,46 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (RuntimeException $e, Request $request)
         {
-
-            $httpStatus = $e->getCode();
             $unserializedData = isSerialized($e->getMessage())
                 ? unserialize($e->getMessage(), ['allowed_classes' => false])
                 : $e->getMessage();
 
-            $body['status'] = $httpStatus;
-            $body['message'] = $unserializedData['message'] ?? $e->getMessage();
+            $body['status']['code'] = $e->getCode() ?? Response::HTTP_BAD_REQUEST;
+            $body['status']['success'] = false;
+            $body['status']['message'] = $unserializedData['message'] ?? $e->getMessage();
 
             if (! empty($unserializedData['errors']) ) {
-                $body['errors'] = $unserializedData['errors'];
+                $body['status']['error'] = $unserializedData['errors'];
             }
 
             return response()->json(
-                data:$body,
+                data: $body,
                 status: Response::HTTP_BAD_REQUEST
+            );
+        });
+
+        $exceptions->render(function (ValidationException $e) {
+            $httpStatus = $e->status;
+            $errors = $e->validator->errors()->toArray();
+            $err = static function() use ($errors) {
+                $return = [];
+                foreach($errors as $key => $value) {
+                    $return[] = [
+                        'field' => $key,
+                        'message' => $value[0]
+                    ];
+                }
+                return $return;
+            };
+
+            $body['status']['success'] = false;
+            $body['status']['code'] = $httpStatus;
+            $body['status']['message'] = 'Validation Error Occurred';
+            $body['status']['errors'] = $err();
+
+            return response()->json(
+                data: $body,
+                status: 422
             );
         });
     })->create();

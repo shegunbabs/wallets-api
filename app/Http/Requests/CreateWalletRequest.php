@@ -3,7 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Enums\WalletTypeEnum;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -45,10 +45,11 @@ class CreateWalletRequest extends FormRequest
         ];
     }
 
-    public function prepareForValidation()
+    public function prepareForValidation(): void
     {
         $this->mergeIfMissing([
             'wallet_type' => WalletTypeEnum::PRIMARY->value,
         ]);
     }
+
 }

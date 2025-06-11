@@ -20,6 +20,6 @@ Route::prefix('v1')->group( static function(){
     Route::prefix('wallets')->group( static function()
     {
         Route::post('create', [WalletController::class, 'create']);
-    });
+    })->middleware(['auth:sanctum']);
 
 });
